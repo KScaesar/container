@@ -1,0 +1,7 @@
+version: "3.4"
+
+services:
+  centos:
+    image: centos:centos7.7.1908
+    container_name: centos
+    command: ["sleep", "infinity"]
