@@ -11,3 +11,10 @@ services:
       - MYSQL_PASSWORD=0000
     ports:
       - "3306:3306"
+    volumes:
+      - data:var/lib/mysql
+      - $HOME/docker/mysql/etc:/etc/mysql/
+
+volumes:
+  data:
+    name: mysql_volume
