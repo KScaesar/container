@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   mysql:
-    image: mysql:8.0.19
+    image: mysql:5.7.29
     container_name: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=1234
@@ -12,7 +12,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - data:var/lib/mysql
+      - data:/var/lib/mysql
       - $HOME/docker/mysql/etc:/etc/mysql/
 
 volumes:
