@@ -4,6 +4,7 @@ services:
   mysql:
     image: mysql:5.7.29
     container_name: mysql
+    # restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=test
@@ -12,9 +13,10 @@ services:
     ports:
       - "3306:3306"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - data:/var/lib/mysql
       - $HOME/docker/mysql/etc:/etc/mysql/
 
 volumes:
   data:
-    name: mysql_volume
+    name: mysql_db

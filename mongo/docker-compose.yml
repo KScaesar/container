@@ -1,0 +1,23 @@
+version: "3.4"
+
+services:
+  mongo:
+    image: mongo:4.2.5
+    container_name: mongo
+    # restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    # command: mongod --serviceExecutor adaptive
+    ports:
+      - "27017:27017"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - dataDB:/data/db
+      - configDB:/data/configdb
+
+volumes:
+  dataDB:
+    name: mongo_db
+  configDB:
+    name: mongo_configdb
