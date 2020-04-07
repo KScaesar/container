@@ -4,14 +4,13 @@ services:
   redis:
     image: redis:5.0.7
     container_name: redis
-    # restart: always
-    cmd: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     ports:
       - "6379:6379"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - data:/data
-      - ./etc/redis_5.0.conf:/usr/local/etc/redis/redis.conf
+      - ./etc/5.0/redis.conf:/usr/local/etc/redis/redis.conf
 
 volumes:
   data:
