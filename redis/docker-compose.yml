@@ -6,11 +6,13 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+
+    # sudo sysctl -w vm.overcommit_memory="1"
+    # echo 'never' | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
     sysctls:
       net.core.somaxconn: 1024
-    command: >
-      bash -c "echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf &&
-      redis-server /usr/local/etc/redis/redis.conf --appendonly yes"
+
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly yes" ]
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - data:/data
