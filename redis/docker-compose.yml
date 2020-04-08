@@ -4,9 +4,13 @@ services:
   redis:
     image: redis:5.0.7
     container_name: redis
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     ports:
       - "6379:6379"
+    sysctls:
+      net.core.somaxconn: 1024
+    command: >
+      bash -c "echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf &&
+      redis-server /usr/local/etc/redis/redis.conf --appendonly yes"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - data:/data
