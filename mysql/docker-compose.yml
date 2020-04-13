@@ -15,7 +15,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - data:/var/lib/mysql
-      - $HOME/docker/mysql/etc:/etc/mysql/
+      - $HOME/container/mysql/etc:/etc/mysql/
 
 volumes:
   data:
