@@ -1,0 +1,22 @@
+version: "3.4"
+
+services:
+  neo4j:
+    image: neo4j:3.5.8
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      # - ./conf:/conf
+      - data:/data
+    environment:
+      # Raise memory limits
+      - NEO4J_dbms_memory_pagecache_size=1G
+      - NEO4J_dbms.memory.heap.initial_size=1G
+      - NEO4J_dbms_memory_heap_max__size=1G
+
+volumes:
+  data:
+    name: neo4j_data
