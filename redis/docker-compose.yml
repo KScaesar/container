@@ -12,7 +12,13 @@ services:
     sysctls:
       net.core.somaxconn: 1024
 
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly yes" ]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+    command:
+      ["redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly yes"]
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - data:/data

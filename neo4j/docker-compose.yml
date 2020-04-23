@@ -12,6 +12,11 @@ services:
       - NEO4J_dbms.memory.heap.initial_size=1G
       - NEO4J_dbms_memory_heap_max__size=1G
       - NEO4J_AUTH=neo4j/1234
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./conf/3.5:/conf

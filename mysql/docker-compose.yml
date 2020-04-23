@@ -12,6 +12,11 @@ services:
       - MYSQL_PASSWORD=0000
     ports:
       - "3306:3306"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - data:/var/lib/mysql
