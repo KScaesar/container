@@ -1,0 +1,70 @@
+version: "3.4"
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.6.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      start_period: 15s
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - data:/usr/share/elasticsearch/data
+      - ./etc/elasticsearch/7.6/:/usr/share/elasticsearch/config/
+    ports:
+      - 9200:9200
+      - "9300:9300"
+    networks:
+      - example_name
+
+  logstash:
+    image: logstash:7.6.2
+    container_name: logstash
+    # command: -f /etc/logstash/conf.d/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etc/logstash/7.6/:/usr/share/logstash/config/
+    ports:
+      - "5000:5000"
+      - "5044:5044"
+      - "9600:9600"
+    networks:
+      - example_name
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:7.6.2
+    container_name: kibana
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./etc/kibana/7.6/:/usr/share/kibana/config/
+    ports:
+      - "5601:5601"
+    networks:
+      - example_name
+    depends_on:
+      - elasticsearch
+
+volumes:
+  data:
+    name: elasticsearch_data
+
+networks:
+  example_name:
+    driver: bridge
+
