@@ -1,0 +1,13 @@
+version: "3.4"
+
+services:
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.27.0
+    container_name: kafdrop
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: localhost:9092
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"

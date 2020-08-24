@@ -1,0 +1,55 @@
+version: "3.4"
+
+services:
+  kafka:
+    image: wurstmeister/kafka:2.12-2.5.0
+    container_name: kafka
+    # restart: always
+    environment:
+      KAFKA_LOG_DIRS: /kafka
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_HOST_NAME: 192.168.10.111
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zoo1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+      # 為了映射本機 port, 一定要掛載
+      # 在容器内就可以执行"docker ps"、"docker port" 等 docker 命令
+      # kafka容器启动时会执行一个名为start-kafka.sh
+      # 里面用 docker 命令来获取宿主机的端口
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - example_name
+
+  zoo1:
+    image: zookeeper:3.4.14
+    container_name: zoo1
+    hostname: zoo1
+    # restart: always
+    ports:
+      # hostPort:containerPort
+      - "2182:2181"   # zookeeper client port
+      - "6666:8080"   # AdminServer port
+      - "2888"        # follower port
+      - "3888"        # election port
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - example_name
+
+# volumes:
+#   kafka_data:
+#     name: kafka_data
+#   zookeeper_data:
+#     name: zookeeper_data
+
+networks:
+  example_name:
+    driver: bridge
+
