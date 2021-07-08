@@ -1,28 +1,97 @@
-version: "3.4"
+version: '3.8'
 
 services:
-  mongo:
-    image: mongo:4.2.5
-    container_name: mongo
-    # restart: always
+  mongo-setup:
+    container_name: mongo-setup
+    image: mongo:4.4.6
+    restart: on-failure
+    volumes:
+      - ./setup.sh:/setup.sh
+      - dataDB_setup:/data/db
+      - dataDB_setup:/data/configdb
+    entrypoint: [ "/setup.sh" ] # Make sure this file exists (see below for the setup.sh)
+    depends_on:
+      - mongo0
+      - mongo1
+      - mongo2
+
+  # Primary node
+  mongo0:
+    hostname: mongo0.dev-rs
+    container_name: mongo0
+    image: mongo:4.4.6
+    restart: always
+    ports:
+      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 1234
-    # command: mongod --serviceExecutor adaptive
-    ports:
-      - "27017:27017"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1m"
-        max-file: "10"
+    command: --replSet dev-rs --keyFile /dev-rs.key
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - dataDB:/data/db
-      - configDB:/data/configdb
+      - ./dev-rs.key:/dev-rs.key
+      - dataDB0:/data/db
+      - dataConfig0:/data/configdb
+
+  mongo1:
+    hostname: mongo1.dev-rs
+    container_name: mongo1
+    image: mongo:4.4.6
+    restart: always
+    ports:
+      - 27018:27018
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    command: --replSet dev-rs --keyFile /dev-rs.key --port 27018
+    depends_on:
+      - mongo0
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./dev-rs.key:/dev-rs.key
+      - dataDB1:/data/db
+      - dataConfig1:/data/configdb
+
+  mongo2:
+    hostname: mongo2.dev-rs
+    container_name: mongo2
+    image: mongo:4.4.6
+    restart: always
+    ports:
+      - 27019:27019
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    command: --replSet dev-rs --keyFile /dev-rs.key --port 27019
+    depends_on:
+      - mongo0
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./dev-rs.key:/dev-rs.key
+      - dataDB2:/data/db
+      - dataConfig2:/data/configdb
 
 volumes:
-  dataDB:
-    name: mongo_db
-  configDB:
-    name: mongo_configdb
+  dataDB0:
+    name: mongo_db0
+  dataConfig0:
+    name: mongo_config0
+
+  dataDB1:
+    name: mongo_db1
+  dataConfig1:
+    name: mongo_config1
+
+  dataDB2:
+    name: mongo_db2
+  dataConfig2:
+    name: mongo_config2
+
+  dataDB_setup:
+    name: mongo_db_setup
+  dataConfig_setup:
+    name: mongo_config_setup
+
+# https://hub.docker.com/_/mongo/
+# https://github.com/docker-library/mongo/blob/cb8a419053858e510fc68ed2d69415b3e50011cb/4.4/Dockerfile
+# https://www.fatalerrors.org/a/docker-compose-builds-mongodb-replica-set-records.html
