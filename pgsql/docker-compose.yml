@@ -1,0 +1,25 @@
+version: "3.4"
+
+services:
+  pgsql:
+    image: postgres:13.4
+    container_name: pgsql
+    # restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=golang_integration_test
+    ports:
+      - "5432:5432"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+    volumes:
+      # - /etc/localtime:/etc/localtime:ro
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:
+    name: pgsql_db

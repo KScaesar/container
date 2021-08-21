@@ -7,7 +7,7 @@ services:
     # restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=1234
-      - MYSQL_DATABASE=GoCodeStyle
+      - MYSQL_DATABASE=golang_integration_test
       - MYSQL_USER=caesar
       - MYSQL_PASSWORD=0000
     ports:
@@ -18,7 +18,7 @@ services:
         max-size: "1m"
         max-file: "10"
     volumes:
-      - /etc/localtime:/etc/localtime:ro
+      # - /etc/localtime:/etc/localtime:ro
       - data:/var/lib/mysql
       - ./etc/5.7/my_setting.cnf:/etc/mysql/conf.d/my_setting.cnf
 
