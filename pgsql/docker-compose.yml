@@ -4,11 +4,11 @@ services:
   pgsql:
     image: postgres:13.4
     container_name: pgsql
-    # restart: always
+    restart: always
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=golang_integration_test
+      - POSTGRES_DB=integration_test
     ports:
       - "5432:5432"
     logging:

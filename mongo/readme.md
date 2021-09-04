@@ -7,6 +7,9 @@
   ```bash
   openssl rand -base64 756 > dev-rs.key
   chmod 400 dev-rs.key
+
+  ## for linux
+  chown 999:999 dev-rs.key
   ```
 
   <https://docs.mongodb.com/manual/tutorial/deploy-replica-set-with-keyfile-access-control/#create-a-keyfile>

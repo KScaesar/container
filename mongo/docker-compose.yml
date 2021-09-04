@@ -95,3 +95,4 @@ volumes:
 # https://hub.docker.com/_/mongo/
 # https://github.com/docker-library/mongo/blob/cb8a419053858e510fc68ed2d69415b3e50011cb/4.4/Dockerfile
 # https://www.fatalerrors.org/a/docker-compose-builds-mongodb-replica-set-records.html
+# https://github.com/docker-library/mongo/issues/475
