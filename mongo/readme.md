@@ -51,3 +51,9 @@ docker exec -it mongo0 \
 mongo --username root --password 1234 --host mongo0.dev-rs --port 27017 \
 --eval 'rs.conf()'
 ```
+
+## connect url
+
+```bash
+mongodb://root:1234@mongo0.dev-rs:27017,mongo1.dev-rs:27018,mongo2.dev-rs:27019/?replicaSet=dev-rs
+```
