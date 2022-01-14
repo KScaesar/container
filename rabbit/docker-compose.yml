@@ -20,6 +20,7 @@ services:
       - ./rabbitmq-env.conf:/etc/rabbitmq/rabbitmq-env.conf
 
       # rabbitmq-plugins list
+      # https://www.rabbitmq.com/plugins.html#tier1-plugins
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
 
 volumes:
