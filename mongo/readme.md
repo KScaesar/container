@@ -9,6 +9,7 @@
   chmod 400 dev-rs.key
 
   ## for linux
+  ## https://stackoverflow.com/questions/55241474/why-docker-compose-creates-directories-files-with-usergroup-999999
   chown 999:999 dev-rs.key
   ```
 

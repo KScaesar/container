@@ -9,7 +9,10 @@ services:
       - ./setup.sh:/setup.sh
       - dataDB_setup:/data/db
       - dataDB_setup:/data/configdb
-    entrypoint: [ "/setup.sh" ] # Make sure this file exists (see below for the setup.sh)
+    entrypoint:
+      [ "/setup.sh" ]
+      # Make sure this file exists (see below for the setup.sh)
+    network_mode: "host"
     depends_on:
       - mongo0
       - mongo1
@@ -21,12 +24,13 @@ services:
     container_name: mongo0
     image: mongo:5.0.5
     restart: always
-    ports:
-      - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 1234
     command: --replSet dev-rs --keyFile /dev-rs.key
+    # network_mode: "host"
+    ports:
+      - 27017:27017
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./dev-rs.key:/dev-rs.key
@@ -38,14 +42,15 @@ services:
     container_name: mongo1
     image: mongo:5.0.5
     restart: always
-    ports:
-      - 27018:27018
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 1234
     command: --replSet dev-rs --keyFile /dev-rs.key --port 27018
     depends_on:
       - mongo0
+    # network_mode: "host"
+    ports:
+      - 27018:27018
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./dev-rs.key:/dev-rs.key
@@ -57,14 +62,15 @@ services:
     container_name: mongo2
     image: mongo:5.0.5
     restart: always
-    ports:
-      - 27019:27019
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 1234
     command: --replSet dev-rs --keyFile /dev-rs.key --port 27019
     depends_on:
       - mongo0
+    # network_mode: "host"
+    ports:
+      - 27019:27019
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./dev-rs.key:/dev-rs.key
