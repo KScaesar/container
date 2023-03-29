@@ -9,18 +9,30 @@ services:
     ports:
       - "80:80"
     command: [ nginx-debug, '-g', 'daemon off;' ]
-    environment:
-      - NGINX_HOST=ksCaesar-nginx.com
-      - NGINX_PORT=80
-    #   - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/templates
-    #   - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.template
-    #   - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
 
-    # docker cp nginx-container:/etc/nginx/nginx.conf .
-    # docker cp nginx-container:/etc/nginx/conf.d ./
+    # https://github.com/nginxinc/docker-nginx/issues/422
+    # https://hackernoon.com/nginx-docker-how-to-get-html-page-up-with-local-domain-name-b22533nk
+    #
+    # Edit /etc/hosts file
+    # 127.0.0.1       caesar.nginx.com
+    environment:
+      - NGINX_PORT=80
+      - NGINX_HOST=caesar.nginx.com
+      # - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/templates
+      # - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.template
+      # - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
+
+      # docker cp nginx-container:/etc/nginx/nginx.conf .
+      # docker cp nginx-container:/etc/nginx/conf.d ./
+      # nginx -t
+      #
+      # https://www.digitalocean.com/community/tools/nginx?global.app.lang=zhTW
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./util:/etc/nginx/util
       - ./conf.d:/etc/nginx/conf.d
-    #   - ./templates:/etc/nginx/templates
-    #   - ./conf.d:/etc/nginx/nginx.conf
+      # - ./templates:/etc/nginx/templates
 
+      # - ./html:/usr/share/nginx/html
+      # - ./.next:/home/.next
+      # - ./public:/home/public
