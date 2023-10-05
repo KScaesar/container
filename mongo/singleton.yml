@@ -1,0 +1,27 @@
+version: "3.4"
+
+services:
+  mongo:
+    image: mongo:4.2.5
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    ports:
+      - "27017:27017"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+    volumes:
+      # - /etc/localtime:/etc/localtime:ro
+      - mongo_db:/data/db
+      - mongo_config:/data/configdb
+
+volumes:
+  mongo_db:
+    name: mongo_db
+  mongo_config:
+    name: mongo_config
