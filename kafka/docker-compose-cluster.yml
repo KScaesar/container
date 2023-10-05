@@ -1,0 +1,73 @@
+version: "3.4"
+
+services:
+  kafka0:
+    image: 'bitnami/kafka:3.5.1'
+    hostname: kafka0.local
+    container_name: kafka0
+    restart: always
+    ports:
+      - '9092:9092'   # external
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka0:19093,1@kafka1:19093,2@kafka2:19093
+      - KAFKA_CFG_LISTENERS=INTERNAL://:19092,CONTROLLER://:19093,EXTERNAL://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka0:19092,EXTERNAL://localhost:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
+    volumes:
+      - kafka0_data:/bitnami/kafka/data
+#      - ./config:/bitnami/kafka/config
+
+  kafka1:
+    image: 'bitnami/kafka:3.5.1'
+    hostname: kafka1.local
+    container_name: kafka1
+    restart: always
+    ports:
+      - '9093:9092'   # external
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka0:19093,1@kafka1:19093,2@kafka2:19093
+      - KAFKA_CFG_LISTENERS=INTERNAL://:19092,CONTROLLER://:19093,EXTERNAL://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka1:19092,EXTERNAL://localhost:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
+    volumes:
+      - kafka1_data:/bitnami/kafka/data
+#      - ./config:/bitnami/kafka/config
+
+  kafka2:
+    image: 'bitnami/kafka:3.5.1'
+    hostname: kafka2.local
+    container_name: kafka2
+    restart: always
+    ports:
+      - '9094:9092'   # external
+    environment:
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka0:19093,1@kafka1:19093,2@kafka2:19093
+      - KAFKA_CFG_LISTENERS=INTERNAL://:19092,CONTROLLER://:19093,EXTERNAL://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka2:19092,EXTERNAL://localhost:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
+    volumes:
+      - kafka2_data:/bitnami/kafka/data
+#      - ./config:/bitnami/kafka/config
+
+volumes:
+  kafka0_data:
+    name: kafka0_data
+  kafka1_data:
+    name: kafka1_data
+  kafka2_data:
+    name: kafka2_data
