@@ -20,8 +20,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./conf/3.5:/conf
-      - data:/data
+      - neo4j_data:/data
 
 volumes:
-  data:
+  neo4j_data:
     name: neo4j_data

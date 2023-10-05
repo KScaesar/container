@@ -19,9 +19,9 @@ services:
         max-file: "10"
     volumes:
       # - /etc/localtime:/etc/localtime:ro
-      - data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
       - ./etc/5.7/my_setting.cnf:/etc/mysql/conf.d/my_setting.cnf
 
 volumes:
-  data:
-    name: mysql_db
+  mysql_data:
+    name: mysql_data

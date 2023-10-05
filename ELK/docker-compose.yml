@@ -23,7 +23,7 @@ services:
       retries: 5
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - data:/usr/share/elasticsearch/data
+      - es_data:/usr/share/elasticsearch/data
       - ./etc/elasticsearch/7.6/:/usr/share/elasticsearch/config/
     ports:
       - 9200:9200
@@ -61,8 +61,8 @@ services:
       - elasticsearch
 
 volumes:
-  data:
-    name: elasticsearch_data
+  es_data:
+    name: es_data
 
 networks:
   example_name:
