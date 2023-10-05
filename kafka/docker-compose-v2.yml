@@ -1,0 +1,38 @@
+version: "3.4"
+
+# https://hub.docker.com/r/bitnami/kafka
+services:
+  kafka0:
+    image: 'bitnami/kafka:3.5.1'
+    hostname: kafka0.local
+    container_name: kafka0
+    restart: always
+    ports:
+      - '9092:9092'
+      - '9094:9094'
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
+      # Setting up a Apache Kafka cluster
+      # https://github.com/bitnami/containers/blob/main/bitnami/kafka/README.md#setting-up-a-apache-kafka-cluster
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka0:9093
+
+      # Accessing Apache Kafka with internal and external clients
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+
+      # - KAFKA_CLIENT_USERS=user
+      # - KAFKA_CLIENT_PASSWORDS=password
+
+    volumes:
+      - kafka_data:/bitnami/kafka/data
+
+      # https://github.com/apache/kafka/blob/trunk/config
+      # - ./config:/bitnami/kafka/config
+
+volumes:
+  kafka_data:
+    name: kafka_data
