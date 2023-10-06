@@ -8,10 +8,13 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: 192.168.66.30:19092,192.168.66.30:19093,192.168.66.30:19094
+      KAFKA_BROKERCONNECT: 192.168.66.31:19092,192.168.66.31:19093,192.168.66.31:19094
       JVM_OPTS: "-Xms32M -Xmx64M"
     network_mode: bridge
     # network_mode: host
+
+    # host.docker.internal for Docker on the Mac
+    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
 
   # https://github.com/provectus/kafka-ui/blob/master/documentation/compose/DOCKER_COMPOSE.md
   kafka-ui:

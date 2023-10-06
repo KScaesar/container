@@ -2,7 +2,7 @@ auth:
   type: DISABLED
 kafka:
   clusters:
-  - bootstrapServers: 192.168.66.27:19092,192.168.66.27:19093,192.168.66.27:19094
+  - bootstrapServers: 192.168.66.31:19092,192.168.66.31:19093,192.168.66.31:19094
     name: dev
     properties: {}
     readOnly: false
