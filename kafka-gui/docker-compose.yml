@@ -1,0 +1,26 @@
+version: 3.4"
+
+services:
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: 192.168.66.30:19092,192.168.66.30:19093,192.168.66.30:19094
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    network_mode: bridge
+    # network_mode: host
+
+  # https://github.com/provectus/kafka-ui/blob/master/documentation/compose/DOCKER_COMPOSE.md
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8080:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    volumes:
+      - ./kafka-ui-config.yaml:/etc/kafkaui/dynamic_config.yaml
+    network_mode: bridge
