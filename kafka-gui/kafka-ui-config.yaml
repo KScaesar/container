@@ -2,10 +2,10 @@ auth:
   type: DISABLED
 kafka:
   clusters:
-  - bootstrapServers: 192.168.66.31:19092,192.168.66.31:19093,192.168.66.31:19094
-    name: dev
-    properties: {}
-    readOnly: false
+    - bootstrapServers: kafka0:19092
+      name: local
+      properties: {}
+      readOnly: false
 rbac:
   roles: []
 webclient: {}

@@ -1,0 +1,35 @@
+version: "3.4"
+
+# https://hub.docker.com/r/bitnami/kafka
+services:
+  kafka0:
+    image: 'bitnami/kafka:3.5.1'
+    hostname: kafka0.local
+    container_name: kafka0
+    restart: always
+    ports:
+      - '19092:19092'  # external
+      - '9092:9092'    # localhost
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka0:9093
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      # localhost 連線其實不需要使用 ADVERTISED
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://localhost:9092,EXTERNAL://192.168.66.31:19092
+
+      - KAFKA_MOUNTED_CONF_DIR=/bitnami/kafka/config/
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+
+      # - KAFKA_CLIENT_USERS=user
+      # - KAFKA_CLIENT_PASSWORDS=password
+
+    volumes:
+      - kafka0_data:/bitnami/kafka/data
+
+volumes:
+  kafka0_data:
+    name: kafka0_data
