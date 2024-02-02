@@ -1,0 +1,72 @@
+version: "3.5"
+
+# https://github.com/nats-io/nats-docker/blob/main/2.10.x/alpine3.19/Dockerfile
+# https://docs.nats.io/running-a-nats-service/nats_docker#creating-a-nats-cluster-with-docker-compose
+
+# https://github.com/bitnami/containers/blob/main/bitnami/nats/2/debian-11/Dockerfile
+
+# https://docs.nats.io/running-a-nats-service/configuration
+# https://docs.nats.io/running-a-nats-service/introduction/flags
+
+services:
+  nats0:
+    image: nats:2.10.9-alpine
+    container_name: nats0
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+    command:
+      [
+        "--config",
+        "/etc/nats/nats-server.conf",
+        "-js",
+        "-server_name",
+        "n0-cluster"
+      ]
+    volumes:
+      - ./nats-server-cluster.conf:/etc/nats/nats-server.conf
+      - nats0_js_data:/tmp/nats/jetstream
+
+  nats1:
+    image: nats:2.10.9-alpine
+    container_name: nats1
+    command:
+      [
+        "-c",
+        "/etc/nats/nats-server.conf",
+        "-js",
+        "--routes",
+        "nats://caesar:1234@nats0:6222",
+        "-server_name",
+        "n1-cluster"
+      ]
+    depends_on: [ "nats0" ]
+    volumes:
+      - ./nats-server-cluster.conf:/etc/nats/nats-server.conf
+      - nats1_js_data:/tmp/nats/jetstream
+
+  nats2:
+    image: nats:2.10.9-alpine
+    container_name: nats2
+    command:
+      [
+        "-c",
+        "/etc/nats/nats-server.conf",
+        "-js",
+        "--routes",
+        "nats://caesar:1234@nats0:6222",
+        "-server_name",
+        "n2-cluster"
+      ]
+    depends_on: [ "nats0" ]
+    volumes:
+      - ./nats-server-cluster.conf:/etc/nats/nats-server.conf
+      - nats2_js_data:/tmp/nats/jetstream
+
+volumes:
+  nats0_js_data:
+    name: nats0_js_data
+  nats1_js_data:
+    name: nats1_js_data
+  nats2_js_data:
+    name: nats2_js_data
