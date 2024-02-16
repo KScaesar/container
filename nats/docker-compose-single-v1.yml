@@ -1,0 +1,28 @@
+version: "3.5"
+
+# https://github.com/nats-io/nats-docker/blob/main/2.10.x/alpine3.19/Dockerfile
+# https://docs.nats.io/running-a-nats-service/nats_docker#creating-a-nats-cluster-with-docker-compose
+
+# https://github.com/bitnami/containers/blob/main/bitnami/nats/2/debian-11/Dockerfile
+
+# https://docs.nats.io/running-a-nats-service/configuration
+# https://docs.nats.io/running-a-nats-service/introduction/flags
+
+services:
+  nats0:
+    image: nats:2.10.9-alpine
+    container_name: nats0
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+    command:
+      [
+        "-js",
+      ]
+    volumes:
+      - ./single-v1.conf:/etc/nats/nats-server.conf
+      - jetstream_data_single_v1:/tmp/nats/jetstream
+
+volumes:
+  jetstream_data_single_v1:
+    name: jetstream_data_single_v1
