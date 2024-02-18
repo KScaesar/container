@@ -111,13 +111,9 @@ https://docs.nats.io/reference/faq#jetstream-and-nats-streaming
 
 - Stream
 - Consumer: 消費者可以被視為 stream 中的"視圖"，具有自己的"遊標"
-    - DeliverPolicy
-        - DeliverAll
-        - DeliverLast
-        - DeliverLastPerSubject
-        - DeliverNew
-        - DeliverByStartSequence
-        - DeliverByStartTime
+    - Durable consumer
+    - Ephemeral Consumer
+    - Consumer Message Rates
 - Headers: 用於重複資料刪除、訊息自動清除、重新發布訊息等
 - Key/Value Store
 - Object Store
@@ -126,23 +122,34 @@ https://docs.nats.io/nats-concepts/jetstream
 
 https://docs.nats.io/nats-concepts/jetstream/consumers#deliverpolicy
 
+https://docs.nats.io/using-nats/developer/develop_jetstream/model_deep_dive#consumer-starting-position
+
+https://docs.nats.io/using-nats/developer/develop_jetstream/consumers
+
 ## push vs pull
 
 在 NATS 中，"pull" 與 "push" 是兩種不同的消息傳遞模型，它們分別具有不同的功能和特性：
 
+https://docs.nats.io/using-nats/developer/develop_jetstream/consumers#push-and-pull-consumers
+
 ### Push 模型：
 - 功能：在 "push" 模型中，消息的發送者將消息主動推送到特定的接收者，接收者被動地接收消息並進行處理。
-- 特性：這種模型常用於即時通訊、事件通知等場景。
-
-### Pull 模型：
-- 功能：在 "pull" 模型中，消息的接收者主動從消息源中拉取消息，通常是根據需要進行拉取，並對消息進行處理。
-- 特性：這種模型常用於消息隊列、工作隊列等場景，其中接收者**主動控制消息的拉取速率**，可以根據處理能力來調整拉取速率。
-
-pull consumers 擴展方式是 implicit, 只需建立相同名稱的 pull consumers 即可
+- 特性：這種模型常用於即時通訊、事件通知等場景。在 NATS 中，nats pub 和 nats sub 命令用於實現 "push" 模型。
 
 push consumers 擴展方式是 explicit, 需要建立不同的 queue group
 
+queue group 有一個缺點是訊息的發布順序會遺失，因為訊息是並發處理的, 藉由設置 `MaxAckPending(1)` 只有一條訊息正在傳輸
+
 [Grokking NATS Consumers: Push-based queue groups](https://www.byronruth.com/grokking-nats-consumers-part-2/)
+
+
+### Pull 模型：
+- 功能：在 "pull" 模型中，消息的接收者主動從消息源中拉取消息，通常是根據需要進行拉取，並對消息進行處理。
+- 特性：這種模型常用於消息隊列、工作隊列等場景，其中接收者**主動控制消息的拉取速率**，可以根據處理能力來調整拉取速率。在 NATS 中，nats request 和 nats reply 命令可以用於實現 "pull" 模型。
+
+pull consumers 擴展方式是 implicit, 只需建立相同名稱的 pull consumers 即可
+
+訊息分發的控制權在訂閱者身上，可以將多個訂閱綁定到同一個 pull consumer 以同時獲取訊息。
 
 [Grokking NATS Consumers: Pull-based](https://www.byronruth.com/grokking-nats-consumers-part-3/)
 
@@ -156,6 +163,19 @@ Core NATS
 NATS JetStream
 
 https://docs.nats.io/nats-concepts/what-is-nats#nats-quality-of-service-qos
+
+https://docs.nats.io/using-nats/developer/develop_jetstream/model_deep_dive#exactly-once-semantics
+
+## Subject Mapping and Partitioning
+
+a "consumer" in JetStream is like a "partition" in Kafka.  
+a "subscriber" in JetStream is like a "consumer" in Kafka.  
+
+https://github.com/nats-io/nats-server/issues/2043#issuecomment-1150583322
+
+https://natsbyexample.com/examples/jetstream/partitions/cli
+
+https://docs.nats.io/nats-concepts/subject_mapping#deterministic-subject-token-partitioning
 
 ## nats CLI Tool
 
@@ -177,33 +197,6 @@ https://github.com/nats-io/natscli?tab=readme-ov-file#configuration-contexts
 https://docs.nats.io/using-nats/nats-tools/nats_cli#nats-contexts
 
 https://docs.nats.io/using-nats/nats-tools
-
-### Manage NATS
-
-- `nats context`: Manage nats configuration.
-- `nats account`: NATS supports the concept of accounts, which allow for isolation and segregation of messaging traffic and permissions.
-- `nats errors`: Reference information related to error handling and error codes in NATS.
-- `nats schema`: Possibly refers to schema-related features or configuration in NATS.
-
-### NATS core
-
-- `nats pub`: Command or action to publish a message to a NATS subject.
-- `nats sub`: Command or action to subscribe to messages on a NATS subject.
-- `nats request`: Command or action to send a request message and expect a reply.
-- `nats reply`: Command or action to reply to a request message.
-
-### NATS streams
-
-- `nats stream`: Streams in NATS are durable, replicated, and distributed logs.
-- `nats consumer`: Consumers in NATS stream are responsible for processing messages from streams.
-
-### Monitoring NATS
-
-- `nats events`: Events related to NATS, which could include connection events, message delivery events, etc.
-- `nats rtt`: Round-trip time monitoring in NATS, measuring the time it takes for a message to be sent and a response to be received.
-- `nats server`: Monitoring and managing the NATS server itself.
-- `nats latency`: Monitoring message latency within NATS.
-
 
 
 ## Accounts
@@ -243,6 +236,8 @@ https://docs.nats.io/running-a-nats-service/nats_admin/security/jwt#system-accou
 https://docs.nats.io/running-a-nats-service/configuration/sys_accounts#local-configuration
 
 https://docs.nats.io/running-a-nats-service/configuration/resource_management#setting-account-resource-limits
+
+https://docs.nats.io/using-nats/nats-tools/nsc/basics#account-server-configuration
 
 ## cluster
 
