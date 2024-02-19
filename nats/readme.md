@@ -109,7 +109,8 @@ https://docs.nats.io/reference/faq#jetstream-and-nats-streaming
 
 ---
 
-- Stream: 儲存發佈的消息、重播訊息
+- Stream: 儲存發佈的消息、重播訊息, 新增串流時，將詢問副本數
+    `nats str add ORDERS --replicas 3`
 - Consumer: 消費者可以被視為 stream 中的"視圖"，具有自己的"遊標"
     - Durable consumer
     - Ephemeral Consumer
@@ -224,13 +225,13 @@ https://docs.nats.io/nats-concepts/subject_mapping#deterministic-subject-token-p
 ```
 # 定義 context, admin 用戶
 nats context save local-admin \
---server nats://127.0.0.1:4222 \
+--server nats://127.0.0.1:4222,nats://127.0.0.1:4223,nats://127.0.0.1:4224 \
 --user admin --password dot987#Root \
 --description ''
 
 # 定義 context, developer 用戶
 nats context save local-dev \
---server nats://127.0.0.1:4222 \
+--server nats://127.0.0.1:4222,nats://127.0.0.1:4223,nats://127.0.0.1:4224 \
 --user devUser --password 123456 \
 --description '' \
 --select
@@ -248,6 +249,7 @@ nats account info --context=local-dev
 # 查詢 server, 需要 admin 權限
 nats server ls --context=local-admin
 nats server info --context=local-admin
+nats server report jetstream --context=local-admin
 ```
 
 https://github.com/nats-io/natscli?tab=readme-ov-file#configuration-contexts
@@ -257,7 +259,14 @@ https://docs.nats.io/using-nats/nats-tools/nats_cli#nats-contexts
 https://docs.nats.io/using-nats/nats-tools
 
 
+https://docs.nats.io/running-a-nats-service/configuration/clustering/jetstream_clustering/troubleshooting
+
 ## nats server config
+
+查詢 nats cluster 資訊
+```
+localhost:8222
+```
 
 帳戶是相互隔離的  
 DEV 中的使用者發佈的訊息  
@@ -305,16 +314,27 @@ https://docs.nats.io/running-a-nats-service/nats_admin/signals
 ## cluster
 
 ```
-docker run --name nats-0 --network nats --rm 
--p 4222:4222 -p 8222:8222 
-nats --cluster_name NATS --cluster nats://0.0.0.0:6222 
---http_port 8222
+cluster {
+  name: demo-cluster
 
-docker run --name nats-1 --network nats --rm 
-nats --cluster_name NATS --cluster nats://0.0.0.0:6222 
---routes=nats://ruser:T0pS3cr3t@nats:6222
+  authorization {
+    user: "route_user"
+    password: "T0pS3cr3t"
+    timeout: 2
+  }
 
-docker run --name nats-2 --network nats --rm 
-nats --cluster_name NATS --cluster nats://0.0.0.0:6222 
---routes=nats://ruser:T0pS3cr3t@nats:6222
+  cluster_advertise: $CLUSTER_ADVERTISE
+
+  port: 6222
+  connect_retries: 20
+  routes = [
+    nats://route_user:T0pS3cr3t@nats0:6222,
+    nats://route_user:T0pS3cr3t@nats1:6222,
+    nats://route_user:T0pS3cr3t@nats2:6222,
+  ]
+}
 ```
+
+https://docs.nats.io/running-a-nats-service/configuration/clustering
+
+https://docs.nats.io/running-a-nats-service/configuration/clustering/cluster_config
