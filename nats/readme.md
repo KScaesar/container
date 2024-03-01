@@ -198,12 +198,12 @@ bar.game.user -> bar.user.game
 可以一次對多個 Subject token 進行分區  
 
 ```
-nats server mapping "foo.*.*" "foo.{{wildcard(1)}}.{{wildcard(2)}}.{{partition(10,1,2)}}"
+nats server mapping "order.*.*" "order.{{wildcard(1)}}.{{partition(10,2)}}"
 
-foo.1.a -> foo.1.a.1
-foo.1.b -> foo.1.b.0
-foo.2.a -> foo.2.a.2
-foo.2.b -> foo.2.b.9
+order.product1.user3 -> order.product1.5
+order.product2.user2 -> order.product2.6
+order.product3.user4 -> order.product3.0
+order.product4.user2 -> order.product4.6
 ```
 
 ### Weighted Mappings
