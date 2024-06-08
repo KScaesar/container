@@ -109,11 +109,13 @@ https://docs.nats.io/reference/faq#jetstream-and-nats-streaming
 
 ---
 
-- Stream
+- Stream: 儲存發佈的消息、重播訊息, 新增串流時，將詢問副本數
+    `nats str add ORDERS --replicas 3`
 - Consumer: 消費者可以被視為 stream 中的"視圖"，具有自己的"遊標"
     - Durable consumer
     - Ephemeral Consumer
     - Consumer Message Rates
+    - FilterSubject: subject `factory-events.*.*` as `factory-events.<factory-id>.<event-type>`, filter `factory-events.A.*`
 - Headers: 用於重複資料刪除、訊息自動清除、重新發布訊息等
 - Key/Value Store
 - Object Store
@@ -168,6 +170,47 @@ https://docs.nats.io/using-nats/developer/develop_jetstream/model_deep_dive#exac
 
 ## Subject Mapping and Partitioning
 
+NATS Server 2.8 (Apr 19, 2022)
+
+Subject mapping 可以用於 分區獨立處理消息、金絲雀部署、A/B 測試、混沌測試、定義消息路由規則
+
+在 Core NATS level，每個帳戶都有自己的一組 Subject Mapping
+
+在 JetStream level，您可以將 Subject Mapping 定義為 stream config 的一部分
+
+
+### Simple Mapping
+```
+nats server mapping foo bar
+```
+
+### Subject Token Reordering
+```
+nats server mapping "bar.*.*"  "baz.{{wildcard(2)}}.{{wildcard(1)}}"
+
+bar.game.user -> bar.user.game
+```
+
+### Deterministic Subject token Partitioning
+
+映射基於 hash，它的分佈是隨機的  
+映射的鍵越多，每個分區的鍵的數量就越趨於收斂到相同的數量  
+可以一次對多個 Subject token 進行分區  
+
+```
+nats server mapping "order.*.*" "order.{{wildcard(1)}}.{{partition(10,2)}}"
+
+order.product1.user3 -> order.product1.5
+order.product2.user2 -> order.product2.6
+order.product3.user4 -> order.product3.0
+order.product4.user2 -> order.product4.6
+```
+
+### Weighted Mappings
+
+```
+```
+
 a "consumer" in JetStream is like a "partition" in Kafka.  
 a "subscriber" in JetStream is like a "consumer" in Kafka.  
 
@@ -177,19 +220,36 @@ https://natsbyexample.com/examples/jetstream/partitions/cli
 
 https://docs.nats.io/nats-concepts/subject_mapping#deterministic-subject-token-partitioning
 
-## nats CLI Tool
+## nats client CLI
 
 ```
+# 定義 context, admin 用戶
 nats context save local-admin \
---server nats://127.0.0.1:4222 \
+--server nats://127.0.0.1:4222,nats://127.0.0.1:4223,nats://127.0.0.1:4224 \
 --user admin --password dot987#Root \
 --description ''
 
+# 定義 context, developer 用戶
 nats context save local-dev \
---server nats://127.0.0.1:4222 \
+--server nats://127.0.0.1:4222,nats://127.0.0.1:4223,nats://127.0.0.1:4224 \
 --user devUser --password 123456 \
 --description '' \
 --select
+
+# 查詢 context
+nats ctx ls
+nats ctx info
+
+# 設定 default context
+nats ctx select local-dev
+
+# 查詢 account, 檢查是否有開啟 Jetstream
+nats account info --context=local-dev
+
+# 查詢 server, 需要 admin 權限
+nats server ls --context=local-admin
+nats server info --context=local-admin
+nats server report jetstream --context=local-admin
 ```
 
 https://github.com/nats-io/natscli?tab=readme-ov-file#configuration-contexts
@@ -199,7 +259,14 @@ https://docs.nats.io/using-nats/nats-tools/nats_cli#nats-contexts
 https://docs.nats.io/using-nats/nats-tools
 
 
-## Accounts
+https://docs.nats.io/running-a-nats-service/configuration/clustering/jetstream_clustering/troubleshooting
+
+## nats server config
+
+查詢 nats cluster 資訊
+```
+localhost:8222
+```
 
 帳戶是相互隔離的  
 DEV 中的使用者發佈的訊息  
@@ -239,19 +306,35 @@ https://docs.nats.io/running-a-nats-service/configuration/resource_management#se
 
 https://docs.nats.io/using-nats/nats-tools/nsc/basics#account-server-configuration
 
+```
+nats-server --signal reload
+```
+https://docs.nats.io/running-a-nats-service/nats_admin/signals
+
 ## cluster
 
 ```
-docker run --name nats-0 --network nats --rm 
--p 4222:4222 -p 8222:8222 
-nats --cluster_name NATS --cluster nats://0.0.0.0:6222 
---http_port 8222
+cluster {
+  name: demo-cluster
 
-docker run --name nats-1 --network nats --rm 
-nats --cluster_name NATS --cluster nats://0.0.0.0:6222 
---routes=nats://ruser:T0pS3cr3t@nats:6222
+  authorization {
+    user: "route_user"
+    password: "T0pS3cr3t"
+    timeout: 2
+  }
 
-docker run --name nats-2 --network nats --rm 
-nats --cluster_name NATS --cluster nats://0.0.0.0:6222 
---routes=nats://ruser:T0pS3cr3t@nats:6222
+  cluster_advertise: $CLUSTER_ADVERTISE
+
+  port: 6222
+  connect_retries: 20
+  routes = [
+    nats://route_user:T0pS3cr3t@nats0:6222,
+    nats://route_user:T0pS3cr3t@nats1:6222,
+    nats://route_user:T0pS3cr3t@nats2:6222,
+  ]
+}
 ```
+
+https://docs.nats.io/running-a-nats-service/configuration/clustering
+
+https://docs.nats.io/running-a-nats-service/configuration/clustering/cluster_config
