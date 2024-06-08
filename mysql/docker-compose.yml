@@ -1,13 +1,19 @@
-version: "3.4"
-
 services:
   mysql:
-    image: mysql:5.7.29
+    # image: mysql:5.7.29
+    image: mysql:8.0.37
     container_name: mysql
-    # restart: always
+    hostname: mysql.vHost
+    restart: unless-stopped
+    command:
+      [
+        mysqld,
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci'
+      ]
     environment:
       - MYSQL_ROOT_PASSWORD=1234
-      - MYSQL_DATABASE=integration_test
+      - MYSQL_DATABASE=testdata
       - MYSQL_USER=caesar
       - MYSQL_PASSWORD=0000
     ports:
@@ -18,9 +24,9 @@ services:
         max-size: "1m"
         max-file: "10"
     volumes:
-      # - /etc/localtime:/etc/localtime:ro
       - mysql_data:/var/lib/mysql
-      - ./etc/5.7/my_setting.cnf:/etc/mysql/conf.d/my_setting.cnf
+      # - /etc/localtime:/etc/localtime:ro
+      # - ./etc/5.7/my_setting.cnf:/etc/mysql/conf.d/my_setting.cnf
 
 volumes:
   mysql_data:
