@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  prefect-nginx:
+    image: nginx:1.27.1
+    container_name: prefect-nginx
+    restart: no
+    environment:
+      - TZ=Asia/Taipei
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - prefect-server
+    profiles: [ "server" ]
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../keys/template-.crt.pem:/etc/nginx/ssl/svc.crt.pem
+      - ../keys/template-.key.pem:/etc/nginx/ssl/svc.key.pem
+    networks:
+      - prefect-network
+
+  prefect-server:
+    # https://github.com/PrefectHQ/prefect/blob/main/Dockerfile
+    image: prefecthq/prefect:2.14.15-python3.11
+    container_name: prefect-server
+    hostname: prefect.vHost
+    restart: no
+    command: [ "prefect", "server", "start" ]
+    environment:
+      - TZ=Asia/Taipei
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_SERVER_API_PORT=4201
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://postgres:postgres@postgres.vHost:5432/prefect
+    ports:
+      - 4201:4201
+    depends_on:
+      - prefect-db
+    profiles: [ "server" ]
+    volumes:
+      - prefect-data:/root/.prefect
+    networks:
+      - prefect-network
+
+  prefect-db:
+    image: postgres:15.2-alpine
+    container_name: prefect-database
+    hostname: postgres.vHost
+    restart: no
+    environment:
+      - TZ=Asia/Taipei
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=prefect
+    ports:
+      - 5432:5432
+    profiles: [ "sever" ]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - prefect-network
+
+volumes:
+  prefect-data:
+    name: prefect-data
+  postgres-data:
+    name: postgres-data
+
+networks:
+  prefect-network:
+    name: prefect-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.64.0/24
+          gateway: 192.168.64.254
