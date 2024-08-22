@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   prefect-nginx:
     image: nginx:1.27.1
@@ -15,8 +13,8 @@ services:
     profiles: [ "server" ]
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../keys/template-.crt.pem:/etc/nginx/ssl/svc.crt.pem
-      - ../keys/template-.key.pem:/etc/nginx/ssl/svc.key.pem
+      # - ../keys/template-.crt.pem:/etc/nginx/ssl/svc.crt.pem
+      # - ../keys/template-.key.pem:/etc/nginx/ssl/svc.key.pem
     networks:
       - prefect-network
 
@@ -44,7 +42,7 @@ services:
 
   prefect-db:
     image: postgres:15.2-alpine
-    container_name: prefect-database
+    container_name: prefect-db
     hostname: postgres.vHost
     restart: no
     environment:
@@ -54,7 +52,7 @@ services:
       - POSTGRES_DB=prefect
     ports:
       - 5432:5432
-    profiles: [ "sever" ]
+    profiles: [ "server" ]
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
