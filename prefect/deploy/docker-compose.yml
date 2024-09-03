@@ -1,4 +1,18 @@
 services:
+  app:
+    # https://docs.docker.com/reference/compose-file/build/#dockerfile
+    image: app:${Jenkins_Number:-undefined}
+    build:
+      context: ../
+      dockerfile: ./deploy/Dockerfile
+    container_name: app
+    restart: no
+    environment:
+      - PREFECT_API_URL=${PREFECT_API_URL:-http://prefect.vHost:4200/api}
+    profiles: [ "app" ]
+    networks:
+      - prefect-network
+
   prefect-nginx:
     image: nginx:1.27.1
     container_name: prefect-nginx
@@ -10,31 +24,31 @@ services:
       - 443:443
     depends_on:
       - prefect-server
-    profiles: [ "server" ]
+    profiles: [ "prefect" ]
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      # - ../keys/template-.crt.pem:/etc/nginx/ssl/svc.crt.pem
-      # - ../keys/template-.key.pem:/etc/nginx/ssl/svc.key.pem
+      - ../keys/star.svc.litv.tv.crt.pem:/etc/nginx/ssl/star.svc.litv.tv.crt.pem
+      - ../keys/star.svc.litv.tv.key.pem:/etc/nginx/ssl/star.svc.litv.tv.key.pem
     networks:
       - prefect-network
 
   prefect-server:
-    # https://github.com/PrefectHQ/prefect/blob/main/Dockerfile
+    # https://github.com/PrefectHQ/prefect/blob/2.14.15/Dockerfile
     image: prefecthq/prefect:2.14.15-python3.11
-    container_name: prefect-server
     hostname: prefect.vHost
+    container_name: prefect-server
     restart: no
     command: [ "prefect", "server", "start" ]
     environment:
       - TZ=Asia/Taipei
       - PREFECT_SERVER_API_HOST=0.0.0.0
-      - PREFECT_SERVER_API_PORT=4201
+      - PREFECT_SERVER_API_PORT=4200
       - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://postgres:postgres@postgres.vHost:5432/prefect
     ports:
-      - 4201:4201
+      - 4200:4200
     depends_on:
       - prefect-db
-    profiles: [ "server" ]
+    profiles: [ "prefect" ]
     volumes:
       - prefect-data:/root/.prefect
     networks:
@@ -42,8 +56,8 @@ services:
 
   prefect-db:
     image: postgres:15.2-alpine
-    container_name: prefect-db
     hostname: postgres.vHost
+    container_name: prefect-db
     restart: no
     environment:
       - TZ=Asia/Taipei
@@ -52,7 +66,7 @@ services:
       - POSTGRES_DB=prefect
     ports:
       - 5432:5432
-    profiles: [ "server" ]
+    profiles: [ "prefect" ]
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -61,14 +75,13 @@ services:
 volumes:
   prefect-data:
     name: prefect-data
+    external: true
   postgres-data:
     name: postgres-data
+    external: true
 
 networks:
   prefect-network:
     name: prefect-network
     ipam:
       driver: default
-      config:
-        - subnet: 192.168.64.0/24
-          gateway: 192.168.64.254
