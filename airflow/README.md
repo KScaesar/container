@@ -1,5 +1,7 @@
 ## 啟動 Airflow
 
+https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#fetching-docker-compose-yaml
+
 ```bash
 cp example-.env .env
 echo -e "AIRFLOW_UID=$(id -u)" > .env
